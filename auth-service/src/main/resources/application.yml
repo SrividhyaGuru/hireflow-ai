@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: auth-service
+    
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hireflow
+    username: admin
+    password: admin
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
