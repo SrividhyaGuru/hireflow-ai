@@ -1,4 +1,4 @@
-package com.hireflow.auth_service;
+package com.hireflow.auth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

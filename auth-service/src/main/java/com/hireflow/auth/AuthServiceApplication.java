@@ -1,4 +1,4 @@
-package com.hireflow.auth_service;
+package com.hireflow.auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
