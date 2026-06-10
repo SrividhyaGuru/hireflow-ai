@@ -6,28 +6,53 @@ import com.hireflow.auth.businessexception.UserNameTakenException;
 import com.hireflow.auth.dto.RegistrationRequest;
 import com.hireflow.auth.dto.RegistrationResponse;
 import com.hireflow.auth.entity.Role;
+import com.hireflow.auth.entity.User;
 import com.hireflow.auth.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserRegistrationService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserRegistrationService(UserRepository userRepository) {
+    public UserRegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public RegistrationResponse register(RegistrationRequest registrationRequest) {
         validateUserRegistration(registrationRequest);
-        return null;
+        User persistedUser = userRepository.save(mapToUserEntity(registrationRequest));
+        return buildRegistrationResponse(persistedUser);
+    }
+
+    private RegistrationResponse buildRegistrationResponse(User persistedUser) {
+        return new RegistrationResponse(persistedUser.getId(),
+                persistedUser.getUsername(),
+                persistedUser.getEmail(),
+                persistedUser.getRole());
+    }
+
+    private User mapToUserEntity(RegistrationRequest registrationRequest) {
+        return User.builder()
+                .username(registrationRequest.username())
+                .password(encodePassword(registrationRequest.password()))
+                .email(registrationRequest.email())
+                .role(registrationRequest.role())
+                .build();
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
 
     private void validateUserRegistration(RegistrationRequest userRequest) {
         validateRole(userRequest);
         checkForDuplicateEmail(userRequest);
-        checkForDuplicateUserName(userRequest);
+        checkForDuplicateUsername(userRequest);
     }
 
     private void validateRole(RegistrationRequest userRequest) {
@@ -42,7 +67,7 @@ public class UserRegistrationService {
         });
     }
 
-    private void checkForDuplicateUserName(RegistrationRequest userRequest) {
+    private void checkForDuplicateUsername(RegistrationRequest userRequest) {
          userRepository.findByUsername(userRequest.username()).ifPresent(existingUser -> {
             throw new UserNameTakenException();
         });

@@ -9,10 +9,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Getter
-@Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -41,6 +38,36 @@ public class User {
     @PreUpdate
     public void preUpdate(){
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public static Builder builder(){
+        return new Builder();
+    }
+
+    public static class Builder{
+        private final User user = new User();
+
+        public Builder username(String username){
+            user.username = username;
+            return this;
+        }
+
+        public Builder password(String password){
+            user.password = password;
+            return this;
+        }
+        public Builder email(String email){
+            user.email = email;
+            return this;
+        }
+        public Builder role(Role role){
+            user.role = role;
+            return this;
+        }
+
+        public User build(){
+            return user;
+        }
     }
 
 }
