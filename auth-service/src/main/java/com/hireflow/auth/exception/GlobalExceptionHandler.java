@@ -1,8 +1,8 @@
 package com.hireflow.auth.exception;
 
-import com.hireflow.auth.businessexception.InvalidRoleException;
-import com.hireflow.auth.businessexception.UserAlreadyExistsByEmailException;
-import com.hireflow.auth.businessexception.UserNameTakenException;
+import com.hireflow.auth.exception.businessexception.InvalidRoleException;
+import com.hireflow.auth.exception.businessexception.UserAlreadyExistsByEmailException;
+import com.hireflow.auth.exception.businessexception.UserNameTakenException;
 import com.hireflow.auth.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

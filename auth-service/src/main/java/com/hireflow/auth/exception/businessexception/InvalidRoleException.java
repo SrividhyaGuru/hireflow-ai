@@ -1,4 +1,4 @@
-package com.hireflow.auth.businessexception;
+package com.hireflow.auth.exception.businessexception;
 
 public class InvalidRoleException extends RuntimeException {
     public InvalidRoleException() {
