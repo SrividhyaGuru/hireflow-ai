@@ -3,6 +3,7 @@ package com.hireflow.auth.exception;
 import com.hireflow.auth.dto.ErrorResponse;
 import com.hireflow.auth.exception.business.InvalidRoleException;
 import com.hireflow.auth.exception.business.UserAlreadyExistsByEmailException;
+import com.hireflow.auth.exception.business.UserLoginException;
 import com.hireflow.auth.exception.business.UserNameTakenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidRoleException(InvalidRoleException invalidRoleException) {
         ErrorResponse errorResponse = new ErrorResponse(List.of(invalidRoleException.getMessage()));
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserLoginException.class)
+    public ResponseEntity<ErrorResponse> handleUserLoginException(UserLoginException userLoginException) {
+        ErrorResponse errorResponse = new ErrorResponse(List.of(userLoginException.getMessage()));
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
