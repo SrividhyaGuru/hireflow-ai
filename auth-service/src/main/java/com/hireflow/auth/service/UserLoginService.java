@@ -23,8 +23,11 @@ public class UserLoginService {
         User registeredUser  = userRepository.findByEmail(loginRequest.email())
                 .orElseThrow(UserLoginException::new);
             verifyPassword(loginRequest, registeredUser);
-            return new LoginResponse(registeredUser.getId(), registeredUser.getUsername(),
-                    registeredUser.getEmail(),registeredUser.getRole());
+            return LoginResponse.builder()
+                    .withUserId(registeredUser.getId())
+                    .withUsername(registeredUser.getUsername())
+                    .withEmail(registeredUser.getEmail())
+                    .withRole(registeredUser.getRole()).build();
 
     }
 
