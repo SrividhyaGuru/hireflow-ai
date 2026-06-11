@@ -1,4 +1,4 @@
-package com.hireflow.auth.exception.businessexception;
+package com.hireflow.auth.exception.business;
 
 public class UserAlreadyExistsByEmailException extends RuntimeException {
     public UserAlreadyExistsByEmailException() {

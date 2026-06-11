@@ -1,4 +1,4 @@
-package com.hireflow.auth.exception.businessexception;
+package com.hireflow.auth.exception.business;
 
 public class UserNameTakenException extends RuntimeException {
     public UserNameTakenException() {

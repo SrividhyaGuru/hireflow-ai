@@ -1,8 +1,8 @@
 package com.hireflow.auth.service;
 
-import com.hireflow.auth.exception.businessexception.InvalidRoleException;
-import com.hireflow.auth.exception.businessexception.UserAlreadyExistsByEmailException;
-import com.hireflow.auth.exception.businessexception.UserNameTakenException;
+import com.hireflow.auth.exception.business.InvalidRoleException;
+import com.hireflow.auth.exception.business.UserAlreadyExistsByEmailException;
+import com.hireflow.auth.exception.business.UserNameTakenException;
 import com.hireflow.auth.dto.RegistrationRequest;
 import com.hireflow.auth.dto.RegistrationResponse;
 import com.hireflow.auth.entity.Role;
