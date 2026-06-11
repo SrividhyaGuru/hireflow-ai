@@ -1,4 +1,6 @@
 package com.hireflow.auth.dto;
 
-public record ErrorResponse(String errorMessage) {
+import java.util.List;
+
+public record ErrorResponse(List<String> errors) {
 }
