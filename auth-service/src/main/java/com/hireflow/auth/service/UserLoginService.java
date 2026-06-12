@@ -5,6 +5,7 @@ import com.hireflow.auth.dto.LoginResponse;
 import com.hireflow.auth.entity.User;
 import com.hireflow.auth.exception.business.UserLoginException;
 import com.hireflow.auth.repository.UserRepository;
+import com.hireflow.auth.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +14,12 @@ public class UserLoginService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UserLoginService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserLoginService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
@@ -27,7 +30,10 @@ public class UserLoginService {
                     .withUserId(registeredUser.getId())
                     .withUsername(registeredUser.getUsername())
                     .withEmail(registeredUser.getEmail())
-                    .withRole(registeredUser.getRole()).build();
+                    .withRole(registeredUser.getRole())
+                    .withAccessToken(jwtService.generateToken(registeredUser.getId(),
+                            registeredUser.getEmail(), registeredUser.getRole().name()))
+                    .build();
 
     }
 

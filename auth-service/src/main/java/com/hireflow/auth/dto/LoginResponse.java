@@ -4,7 +4,7 @@ import com.hireflow.auth.entity.Role;
 
 import java.util.UUID;
 
-public record LoginResponse(UUID userId, String username, String email, Role role) {
+public record LoginResponse(UUID userId, String username, String email, Role role, String accessToken) {
 
     public static Builder builder() {
         return new Builder();
@@ -15,6 +15,7 @@ public record LoginResponse(UUID userId, String username, String email, Role rol
         private String username;
         private String email;
         private Role role;
+        private String accessToken;
 
 
         public Builder withUserId(UUID userId) {
@@ -37,8 +38,13 @@ public record LoginResponse(UUID userId, String username, String email, Role rol
             return this;
         }
 
+        public Builder withAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+            return this;
+        }
+
         public LoginResponse build() {
-            return new LoginResponse(userId, username, email, role);
+            return new LoginResponse(userId, username, email, role, accessToken);
         }
     }
 }
