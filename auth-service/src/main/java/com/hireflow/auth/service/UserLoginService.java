@@ -5,7 +5,7 @@ import com.hireflow.auth.dto.LoginResponse;
 import com.hireflow.auth.entity.User;
 import com.hireflow.auth.exception.business.UserLoginException;
 import com.hireflow.auth.repository.UserRepository;
-import com.hireflow.auth.security.JwtService;
+import com.hireflow.auth.security.jwt.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
