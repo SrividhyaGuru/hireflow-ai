@@ -5,7 +5,7 @@ import com.hireflow.auth.dto.LoginRequest;
 import com.hireflow.auth.dto.RegistrationRequest;
 import com.hireflow.auth.dto.RegistrationResponse;
 import com.hireflow.auth.exception.security.InvalidRefreshTokenException;
-import com.hireflow.auth.service.RefreshTokenService;
+import com.hireflow.auth.service.AuthService;
 import com.hireflow.auth.service.UserLoginService;
 import com.hireflow.auth.service.UserRegistrationService;
 import jakarta.validation.Valid;
@@ -22,13 +22,13 @@ public class AuthController {
 
     private final UserRegistrationService userRegistrationService;
     private final UserLoginService userLoginService;
-    private final RefreshTokenService refreshTokenService;
+    private final AuthService authService;
 
     public AuthController(UserRegistrationService userRegistrationService, UserLoginService userLoginService,
-                          RefreshTokenService refreshTokenService) {
+                          AuthService authService) {
         this.userRegistrationService = userRegistrationService;
         this.userLoginService = userLoginService;
-        this.refreshTokenService = refreshTokenService;
+        this.authService = authService;
     }
 
     @PostMapping("/register")
@@ -48,7 +48,7 @@ public class AuthController {
         if (token.isBlank()) {
             throw new InvalidRefreshTokenException();
         }
-        AuthResponse authResponse = refreshTokenService.rotateRefreshToken(token);
+        AuthResponse authResponse = authService.refresh(token);
         return ResponseEntity.status(HttpStatus.OK).body(authResponse);
     }
 

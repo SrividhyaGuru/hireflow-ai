@@ -1,6 +1,6 @@
 package com.hireflow.auth.service;
 
-import com.hireflow.auth.dto.AuthResponse;
+import com.hireflow.auth.domain.RefreshSession;
 import com.hireflow.auth.entity.RefreshToken;
 import com.hireflow.auth.entity.User;
 import com.hireflow.auth.exception.security.InvalidRefreshTokenException;
@@ -31,24 +31,14 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public AuthResponse rotateRefreshToken(String clientRawRefreshToken) {
+    public RefreshSession rotateRefreshToken(String clientRawRefreshToken) {
         RefreshToken existingRefreshToken = refreshTokenRepository.findByTokenHash(getHashedToken(clientRawRefreshToken))
                 .orElseThrow(InvalidRefreshTokenException::new);
         validateRefreshToken(existingRefreshToken);
         existingRefreshToken.revoke();
         User registeredUser = existingRefreshToken.getUser();
         String newRefreshToken = generateAndSaveRefreshToken(registeredUser);
-        String newAccessToken = jwtService.generateToken(registeredUser.getId(),
-                registeredUser.getEmail(), registeredUser.getRole().name());
-        return AuthResponse.builder()
-                .withUserId(registeredUser.getId())
-                .withUsername(registeredUser.getUsername())
-                .withEmail(registeredUser.getEmail())
-                .withRole(registeredUser.getRole())
-                .withRefreshToken(newRefreshToken)
-                .withAccessToken(newAccessToken)
-                .build();
-
+        return new RefreshSession(registeredUser, newRefreshToken);
     }
 
     private void validateRefreshToken(RefreshToken existingToken) {
