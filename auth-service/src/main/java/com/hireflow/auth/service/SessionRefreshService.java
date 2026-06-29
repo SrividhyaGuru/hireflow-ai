@@ -7,18 +7,18 @@ import com.hireflow.auth.security.jwt.JwtService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService {
+public class SessionRefreshService {
     private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
 
-    public AuthService(RefreshTokenService refreshTokenService, JwtService jwtService) {
+    public SessionRefreshService(RefreshTokenService refreshTokenService, JwtService jwtService) {
         this.refreshTokenService = refreshTokenService;
         this.jwtService = jwtService;
     }
 
     public AuthResponse refresh(String clientRawRefreshToken) {
-        RefreshSession refreshSession = refreshTokenService.rotateRefreshToken(clientRawRefreshToken);
-        User user = refreshSession.user();
+        RefreshSession session = refreshTokenService.rotateToken(clientRawRefreshToken);
+        User user = session.user();
         String newAccessToken = jwtService.generateToken(user.getId(),
                 user.getEmail(), user.getRole().name());
         return AuthResponse.builder()
@@ -26,7 +26,7 @@ public class AuthService {
                 .withUsername(user.getUsername())
                 .withEmail(user.getEmail())
                 .withRole(user.getRole())
-                .withRefreshToken(refreshSession.refreshToken())
+                .withRefreshToken(session.refreshToken())
                 .withAccessToken(newAccessToken)
                 .build();
 
