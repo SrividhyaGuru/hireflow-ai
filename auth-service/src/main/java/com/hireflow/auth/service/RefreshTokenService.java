@@ -1,11 +1,15 @@
 package com.hireflow.auth.service;
 
+import com.hireflow.auth.dto.AuthResponse;
 import com.hireflow.auth.entity.RefreshToken;
 import com.hireflow.auth.entity.User;
+import com.hireflow.auth.exception.security.InvalidRefreshTokenException;
 import com.hireflow.auth.repository.RefreshTokenRepository;
+import com.hireflow.auth.security.jwt.JwtService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.Instant;
@@ -15,20 +19,48 @@ import java.util.Base64;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtService jwtService;
     private final long tokenExpirationInSeconds;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository,
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, JwtService jwtService,
                                @Value("${refresh-token.expiration-seconds}") long tokenExpirationInSeconds) {
         this.refreshTokenRepository = refreshTokenRepository;
+        this.jwtService = jwtService;
         this.tokenExpirationInSeconds = tokenExpirationInSeconds;
+    }
+
+    @Transactional
+    public AuthResponse rotateRefreshToken(String clientRawRefreshToken) {
+        RefreshToken existingRefreshToken = refreshTokenRepository.findByTokenHash(getHashedToken(clientRawRefreshToken))
+                .orElseThrow(InvalidRefreshTokenException::new);
+        validateRefreshToken(existingRefreshToken);
+        existingRefreshToken.revoke();
+        User registeredUser = existingRefreshToken.getUser();
+        String newRefreshToken = generateAndSaveRefreshToken(registeredUser);
+        String newAccessToken = jwtService.generateToken(registeredUser.getId(),
+                registeredUser.getEmail(), registeredUser.getRole().name());
+        return AuthResponse.builder()
+                .withUserId(registeredUser.getId())
+                .withUsername(registeredUser.getUsername())
+                .withEmail(registeredUser.getEmail())
+                .withRole(registeredUser.getRole())
+                .withRefreshToken(newRefreshToken)
+                .withAccessToken(newAccessToken)
+                .build();
+
+    }
+
+    private void validateRefreshToken(RefreshToken existingToken) {
+        if (existingToken.isRevoked() || Instant.now().isAfter(existingToken.getExpiresAt())) {
+            throw new InvalidRefreshTokenException();
+        }
     }
 
     public String generateAndSaveRefreshToken(User registeredUser) {
         String rawRefreshToken = generateRawTokenString();
         String hashedTokenString = getHashedToken(rawRefreshToken);
-        RefreshToken refreshToken = refreshTokenRepository.save(
-                mapToRefreshTokenEntity(registeredUser, hashedTokenString));
+        refreshTokenRepository.save(mapToRefreshTokenEntity(registeredUser, hashedTokenString));
         return rawRefreshToken;
 
     }

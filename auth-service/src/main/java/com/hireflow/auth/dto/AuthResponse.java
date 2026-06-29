@@ -4,9 +4,9 @@ import com.hireflow.auth.entity.Role;
 
 import java.util.UUID;
 
-public record LoginResponse(UUID userId, String username,
-                            String email, Role role,
-                            String accessToken, String refreshToken) {
+public record AuthResponse(UUID userId, String username,
+                           String email, Role role,
+                           String accessToken, String refreshToken) {
 
     public static Builder builder() {
         return new Builder();
@@ -51,8 +51,8 @@ public record LoginResponse(UUID userId, String username,
             return this;
         }
 
-        public LoginResponse build() {
-            return new LoginResponse(userId, username, email, role, accessToken, refreshToken);
+        public AuthResponse build() {
+            return new AuthResponse(userId, username, email, role, accessToken, refreshToken);
         }
     }
 }

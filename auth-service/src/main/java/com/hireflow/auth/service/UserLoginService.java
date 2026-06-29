@@ -1,7 +1,7 @@
 package com.hireflow.auth.service;
 
 import com.hireflow.auth.dto.LoginRequest;
-import com.hireflow.auth.dto.LoginResponse;
+import com.hireflow.auth.dto.AuthResponse;
 import com.hireflow.auth.entity.User;
 import com.hireflow.auth.exception.business.UserLoginException;
 import com.hireflow.auth.repository.UserRepository;
@@ -25,12 +25,12 @@ public class UserLoginService {
         this.refreshTokenService = refreshTokenService;
     }
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public AuthResponse login(LoginRequest loginRequest) {
         User registeredUser  = userRepository.findByEmail(loginRequest.email())
                 .orElseThrow(UserLoginException::new);
             verifyPassword(loginRequest, registeredUser);
         String newRefreshToken = refreshTokenService.generateAndSaveRefreshToken(registeredUser);
-        return LoginResponse.builder()
+        return AuthResponse.builder()
                     .withUserId(registeredUser.getId())
                     .withUsername(registeredUser.getUsername())
                     .withEmail(registeredUser.getEmail())

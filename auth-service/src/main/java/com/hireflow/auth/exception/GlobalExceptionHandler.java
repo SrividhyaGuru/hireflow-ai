@@ -5,6 +5,7 @@ import com.hireflow.auth.exception.business.InvalidRoleException;
 import com.hireflow.auth.exception.business.UserAlreadyExistsByEmailException;
 import com.hireflow.auth.exception.business.UserLoginException;
 import com.hireflow.auth.exception.business.UserNameTakenException;
+import com.hireflow.auth.exception.security.InvalidRefreshTokenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -48,5 +49,11 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage()).toList();
         ErrorResponse errorResponse = new ErrorResponse(requestValidationErrors);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRefreshTokenException(InvalidRefreshTokenException invalidRefreshTokenException) {
+        ErrorResponse errorResponse = new ErrorResponse(List.of(invalidRefreshTokenException.getMessage()));
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }

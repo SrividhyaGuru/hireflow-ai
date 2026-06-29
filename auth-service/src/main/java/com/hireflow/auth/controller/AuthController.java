@@ -1,9 +1,11 @@
 package com.hireflow.auth.controller;
 
+import com.hireflow.auth.dto.AuthResponse;
 import com.hireflow.auth.dto.LoginRequest;
-import com.hireflow.auth.dto.LoginResponse;
 import com.hireflow.auth.dto.RegistrationRequest;
 import com.hireflow.auth.dto.RegistrationResponse;
+import com.hireflow.auth.exception.security.InvalidRefreshTokenException;
+import com.hireflow.auth.service.RefreshTokenService;
 import com.hireflow.auth.service.UserLoginService;
 import com.hireflow.auth.service.UserRegistrationService;
 import jakarta.validation.Valid;
@@ -20,10 +22,13 @@ public class AuthController {
 
     private final UserRegistrationService userRegistrationService;
     private final UserLoginService userLoginService;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthController(UserRegistrationService userRegistrationService, UserLoginService userLoginService) {
+    public AuthController(UserRegistrationService userRegistrationService, UserLoginService userLoginService,
+                          RefreshTokenService refreshTokenService) {
         this.userRegistrationService = userRegistrationService;
         this.userLoginService = userLoginService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/register")
@@ -33,9 +38,18 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
-        LoginResponse loginResponse = userLoginService.login(loginRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
+    public ResponseEntity<AuthResponse> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
+        AuthResponse authResponse = userLoginService.login(loginRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(authResponse);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestHeader("X-Refresh-Token") String token) {
+        if (token.isBlank()) {
+            throw new InvalidRefreshTokenException();
+        }
+        AuthResponse authResponse = refreshTokenService.rotateRefreshToken(token);
+        return ResponseEntity.status(HttpStatus.OK).body(authResponse);
     }
 
     @GetMapping("/test")
