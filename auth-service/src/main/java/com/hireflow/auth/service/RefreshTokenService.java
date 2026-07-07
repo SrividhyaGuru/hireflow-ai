@@ -32,7 +32,7 @@ public class RefreshTokenService {
 
     @Transactional
     public RefreshSession rotateToken(String clientRawRefreshToken) {
-        RefreshToken existingRefreshToken = refreshTokenRepository.findByTokenHash(getHashedToken(clientRawRefreshToken))
+        RefreshToken existingRefreshToken = refreshTokenRepository.findByTokenHashForUpdate(getHashedToken(clientRawRefreshToken))
                 .orElseThrow(InvalidRefreshTokenException::new);
         validateRefreshToken(existingRefreshToken);
         existingRefreshToken.revoke();
