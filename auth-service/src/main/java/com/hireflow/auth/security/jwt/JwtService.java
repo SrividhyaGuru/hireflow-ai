@@ -1,6 +1,7 @@
 package com.hireflow.auth.security.jwt;
 
 
+import com.hireflow.auth.domain.AuthenticatedUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -34,9 +35,9 @@ public class JwtService {
                 .compact();
     }
 
-    public JwtClaims extractJwtClaims(String token) {
+    public AuthenticatedUser extractAuthenticatedUser(String token) {
         Claims claims = parseClaims(token);
-        return JwtClaims.builder()
+        return AuthenticatedUser.builder()
                 .userId(UUID.fromString(claims.getSubject()))
                 .email(claims.get("email", String.class))
                 .role(claims.get("role", String.class))

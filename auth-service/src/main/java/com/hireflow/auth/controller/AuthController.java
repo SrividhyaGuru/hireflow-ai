@@ -1,5 +1,6 @@
 package com.hireflow.auth.controller;
 
+import com.hireflow.auth.domain.AuthenticatedUser;
 import com.hireflow.auth.dto.AuthResponse;
 import com.hireflow.auth.dto.LoginRequest;
 import com.hireflow.auth.dto.RegistrationRequest;
@@ -7,6 +8,7 @@ import com.hireflow.auth.dto.RegistrationResponse;
 import com.hireflow.auth.exception.security.InvalidRefreshTokenException;
 import com.hireflow.auth.service.SessionRefreshService;
 import com.hireflow.auth.service.UserLoginService;
+import com.hireflow.auth.service.UserLogoutService;
 import com.hireflow.auth.service.UserRegistrationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,12 +25,14 @@ public class AuthController {
     private final UserRegistrationService userRegistrationService;
     private final UserLoginService userLoginService;
     private final SessionRefreshService sessionRefreshService;
+    private final UserLogoutService userLogoutService;
 
     public AuthController(UserRegistrationService userRegistrationService, UserLoginService userLoginService,
-                          SessionRefreshService sessionRefreshService) {
+                          SessionRefreshService sessionRefreshService, UserLogoutService userLogoutService) {
         this.userRegistrationService = userRegistrationService;
         this.userLoginService = userLoginService;
         this.sessionRefreshService = sessionRefreshService;
+        this.userLogoutService = userLogoutService;
     }
 
     @PostMapping("/register")
@@ -50,6 +54,13 @@ public class AuthController {
         }
         AuthResponse authResponse = sessionRefreshService.refresh(token);
         return ResponseEntity.status(HttpStatus.OK).body(authResponse);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        userLogoutService.logout(((AuthenticatedUser)authentication.getPrincipal()).userId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/test")

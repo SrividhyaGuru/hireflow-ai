@@ -1,5 +1,6 @@
 package com.hireflow.auth.security.jwt;
 
+import com.hireflow.auth.domain.AuthenticatedUser;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -35,9 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String authorizationHeader = request.getHeader("Authorization");
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 String token = authorizationHeader.substring(7);
-                JwtClaims jwtClaims = jwtService.extractJwtClaims(token);
-                Authentication authentication = new UsernamePasswordAuthenticationToken(jwtClaims, null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + jwtClaims.role())));
+                AuthenticatedUser user = jwtService.extractAuthenticatedUser(token);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(user, null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + user.role())));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             filterChain.doFilter(request, response);

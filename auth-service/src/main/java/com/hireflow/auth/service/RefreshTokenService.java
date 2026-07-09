@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
@@ -39,6 +40,10 @@ public class RefreshTokenService {
         User registeredUser = existingRefreshToken.getUser();
         String newRefreshToken = generateAndSaveRefreshToken(registeredUser);
         return new RefreshSession(registeredUser, newRefreshToken);
+    }
+
+    public void revokeAllRefreshTokensFor(UUID userId) {
+        refreshTokenRepository.revokeAllRefreshTokenFor(userId);
     }
 
     private void validateRefreshToken(RefreshToken existingToken) {
