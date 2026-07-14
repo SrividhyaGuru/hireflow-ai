@@ -5,7 +5,6 @@ import com.hireflow.auth.entity.RefreshToken;
 import com.hireflow.auth.entity.User;
 import com.hireflow.auth.exception.security.InvalidRefreshTokenException;
 import com.hireflow.auth.repository.RefreshTokenRepository;
-import com.hireflow.auth.security.jwt.JwtService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,14 +19,12 @@ import java.util.UUID;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final JwtService jwtService;
     private final long tokenExpirationInSeconds;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, JwtService jwtService,
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository,
                                @Value("${refresh-token.expiration-seconds}") long tokenExpirationInSeconds) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.jwtService = jwtService;
         this.tokenExpirationInSeconds = tokenExpirationInSeconds;
     }
 
@@ -46,20 +43,19 @@ public class RefreshTokenService {
         refreshTokenRepository.revokeAllRefreshTokenFor(userId);
     }
 
-    private void validateRefreshToken(RefreshToken existingToken) {
-        if (existingToken.isRevoked() || Instant.now().isAfter(existingToken.getExpiresAt())) {
-            throw new InvalidRefreshTokenException();
-        }
-    }
 
     public String generateAndSaveRefreshToken(User registeredUser) {
         String rawRefreshToken = generateRawTokenString();
         String hashedTokenString = getHashedToken(rawRefreshToken);
         refreshTokenRepository.save(mapToRefreshTokenEntity(registeredUser, hashedTokenString));
         return rawRefreshToken;
-
     }
 
+    private void validateRefreshToken(RefreshToken existingToken) {
+        if (existingToken.isRevoked() || Instant.now().isAfter(existingToken.getExpiresAt())) {
+            throw new InvalidRefreshTokenException();
+        }
+    }
     private RefreshToken mapToRefreshTokenEntity(User registeredUser, String secureTokenString) {
         Instant issueTime = Instant.now();
         return RefreshToken.builder()
